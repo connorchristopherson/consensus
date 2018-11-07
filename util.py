@@ -58,38 +58,23 @@ def create_diagonal(num_agents, A):
 def generate_blind_spots(x, y, u, v, alpha, repulsion_A, orientation_A,
                          attraction_A):
     num_agents = len(x)
+
     for i in range(num_agents):
-        direction_theta = generate_theta(0., u[i], 0., v[i]) % (2. * np.pi)
         for j in range(num_agents):
             if i == j:
                 continue
-            neighbor_theta = (generate_theta(
-                x[i], x[j], y[i], y[j]) - direction_theta) % (2. * np.pi)
-
-            if neighbor_theta >= np.pi - (
-                    alpha / 2.) and neighbor_theta <= np.pi - (alpha / 2.):
+            if np.pi - create_theta(u[i], v[i], x[i], x[j], y[i], y[j]) < alpha / 2.:
                 repulsion_A[i, j] = 0.
                 orientation_A[i, j] = 0.
                 attraction_A[i, j] = 0.
+
     return repulsion_A, orientation_A, attraction_A
 
 
-# x = [0, u]
-# y = [0, v]
-# def f2(u, v):
-#     num_agents = len(u)
-#     for i in range(num_agents):
-#         for j in range(num_agents):
-#             if i == j:
-#                 continue
-#             denom = np.sqrt(u[j]**2 + v[j]**2)
-#             quotient = u[j] / denom
-#             theta = np.arccos(quotient)
-
-
-def generate_theta(x1, x2, y1, y2):
+def create_theta(u, v, x1, x2, y1, y2):
     x_sub = x2 - x1
     y_sub = y2 - y1
-    denom = np.sqrt(x_sub**2 + y_sub**2)
-    quotient = x_sub / denom
-    return np.arccos(quotient)
+    neighbor_norm = np.sqrt(x_sub**2 + y_sub**2)
+    uv_norm = np.sqrt(u**2 + v**2)
+    dot_product = np.dot(np.array([x_sub, y_sub]), np.array([u, v]))
+    return np.arccos(dot_product / (neighbor_norm * uv_norm))

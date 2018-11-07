@@ -11,7 +11,7 @@ MOVEMENT_STEP_SIZE = .03
 STEPS = 100
 NUM_AGENTS = 10
 FIELD_SIZE = 70
-ALPHA = np.pi
+ALPHA = (4/4)*np.pi
 
 # inits
 x = np.random.randint(1, FIELD_SIZE - 1, size=NUM_AGENTS).astype(float)
