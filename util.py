@@ -59,12 +59,12 @@ def generate_blind_spots(x, y, u, v, alpha, repulsion_A, orientation_A,
                          attraction_A):
     num_agents = len(x)
     for i in range(num_agents):
-        direction_theta = generate_theta(0., u[i], 0., v[i])
+        direction_theta = generate_theta(0., u[i], 0., v[i]) % (2. * np.pi)
         for j in range(num_agents):
             if i == j:
                 continue
-            neighbor_theta = generate_theta(x[i], x[j], y[i],
-                                            y[j]) - direction_theta
+            neighbor_theta = (generate_theta(
+                x[i], x[j], y[i], y[j]) - direction_theta) % (2. * np.pi)
 
             if neighbor_theta >= np.pi - (
                     alpha / 2.) and neighbor_theta <= np.pi - (alpha / 2.):

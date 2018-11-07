@@ -11,7 +11,7 @@ MOVEMENT_STEP_SIZE = .03
 STEPS = 100
 NUM_AGENTS = 10
 FIELD_SIZE = 70
-ALPHA = np.pi / 4.
+ALPHA = np.pi
 
 # inits
 x = np.random.randint(1, FIELD_SIZE - 1, size=NUM_AGENTS).astype(float)
@@ -36,7 +36,7 @@ plot(
     replusion_eigen,
     orientation_eigen,
     attraction_eigen,
-    plot_radius=False)
+    plot_radius=True)
 
 # loop
 for step in range(STEPS):
@@ -101,4 +101,4 @@ for step in range(STEPS):
         replusion_eigen,
         orientation_eigen,
         attraction_eigen,
-        plot_radius=False)
+        plot_radius=True)
