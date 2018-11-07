@@ -11,6 +11,7 @@ MOVEMENT_STEP_SIZE = .03
 STEPS = 100
 NUM_AGENTS = 10
 FIELD_SIZE = 70
+ALPHA = np.pi / 4.
 
 # inits
 x = np.random.randint(1, FIELD_SIZE - 1, size=NUM_AGENTS).astype(float)
@@ -22,14 +23,30 @@ orientation_eigen = []
 attraction_eigen = []
 
 # plot
-plot_swarm(x, y, u, v, FIELD_SIZE, -1, REPLUSION_RADIUS, ORIENTATION_RADIUS,
-           ATTRACTION_RADIUS)
+plot(
+    x,
+    y,
+    u,
+    v,
+    FIELD_SIZE,
+    -1,
+    REPLUSION_RADIUS,
+    ORIENTATION_RADIUS,
+    ATTRACTION_RADIUS,
+    replusion_eigen,
+    orientation_eigen,
+    attraction_eigen,
+    plot_radius=False)
 
 # loop
 for step in range(STEPS):
     # generate adjacency matrices
     repulsion_A, orientation_A, attraction_A = generate_As(
         x, y, REPLUSION_RADIUS, ORIENTATION_RADIUS, ATTRACTION_RADIUS)
+
+    # generate blind spots
+    repulsion_A, orientation_A, attraction_A = generate_blind_spots(
+        x, y, u, v, ALPHA, repulsion_A, orientation_A, attraction_A)
 
     # reorient
     for base_index in range(len(x)):
@@ -71,6 +88,17 @@ for step in range(STEPS):
     y = placements[:, 1]
 
     # plot
-    plot(x, y, u, v, FIELD_SIZE, step, REPLUSION_RADIUS, ORIENTATION_RADIUS,
-         ATTRACTION_RADIUS, replusion_eigen, orientation_eigen,
-         attraction_eigen)
+    plot(
+        x,
+        y,
+        u,
+        v,
+        FIELD_SIZE,
+        step,
+        REPLUSION_RADIUS,
+        ORIENTATION_RADIUS,
+        ATTRACTION_RADIUS,
+        replusion_eigen,
+        orientation_eigen,
+        attraction_eigen,
+        plot_radius=False)

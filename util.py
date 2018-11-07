@@ -38,14 +38,14 @@ def generate_As(x, y, repulsion_radius, orientation_radius, attraction_radius):
     return repulsion_A, orientation_A, attraction_A
 
 
-def generate_blind_spots(x, y, u, v, blind_spot, repulsion_A, orientation_A,
-                         attraction_A):
-    num_agents = len(x)
-    for i in range(num_agents):
-        for j in range(num_agents):
-            if i == j:
-                continue
-            pass  # generate blind spots
+# def generate_blind_spots(x, y, u, v, blind_spot, repulsion_A, orientation_A,
+#                          attraction_A):
+#     num_agents = len(x)
+#     for i in range(num_agents):
+#         for j in range(num_agents):
+#             if i == j:
+#                 continue
+#             pass  # generate blind spots
 
 
 def create_diagonal(num_agents, A):
@@ -53,3 +53,43 @@ def create_diagonal(num_agents, A):
     for i in range(num_agents):
         diagonal[i, i] = np.sum(A[i])
     return diagonal
+
+
+def generate_blind_spots(x, y, u, v, alpha, repulsion_A, orientation_A,
+                         attraction_A):
+    num_agents = len(x)
+    for i in range(num_agents):
+        direction_theta = generate_theta(0., u[i], 0., v[i])
+        for j in range(num_agents):
+            if i == j:
+                continue
+            neighbor_theta = generate_theta(x[i], x[j], y[i],
+                                            y[j]) - direction_theta
+
+            if neighbor_theta >= np.pi - (
+                    alpha / 2.) and neighbor_theta <= np.pi - (alpha / 2.):
+                repulsion_A[i, j] = 0.
+                orientation_A[i, j] = 0.
+                attraction_A[i, j] = 0.
+    return repulsion_A, orientation_A, attraction_A
+
+
+# x = [0, u]
+# y = [0, v]
+# def f2(u, v):
+#     num_agents = len(u)
+#     for i in range(num_agents):
+#         for j in range(num_agents):
+#             if i == j:
+#                 continue
+#             denom = np.sqrt(u[j]**2 + v[j]**2)
+#             quotient = u[j] / denom
+#             theta = np.arccos(quotient)
+
+
+def generate_theta(x1, x2, y1, y2):
+    x_sub = x2 - x1
+    y_sub = y2 - y1
+    denom = np.sqrt(x_sub**2 + y_sub**2)
+    quotient = x_sub / denom
+    return np.arccos(quotient)
