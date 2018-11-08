@@ -83,6 +83,8 @@ for step in range(STEPS):
     u = uv[:, 0]
     v = uv[:, 1]
 
+    # MODIFY RED AND GOLD LEADER ORIENTATION
+
     # generate diagonals
     repulsion_diagonal = create_diagonal(NUM_AGENTS, repulsion_A)
     orientation_diagonal = create_diagonal(NUM_AGENTS, orientation_A)
@@ -109,6 +111,9 @@ for step in range(STEPS):
     x = placements[:, 0]
     y = placements[:, 1]
     
+    
+    # ZERO OUT THE FIRST TWO ROWS OF XDOT AND IMPLEMENT RED AND GOLD LEADER MOVEMENT
+
     # plot
     if step % 11 == 0:
         plot(
