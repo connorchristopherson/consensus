@@ -18,22 +18,33 @@ def distance_formula(point1, point2):
     return np.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
 
-def generate_As(x, y, repulsion_radius, orientation_radius, attraction_radius):
-    num_agents = len(x)
-    repulsion_A = np.zeros((num_agents, num_agents))
-    orientation_A = np.zeros((num_agents, num_agents))
-    attraction_A = np.zeros((num_agents, num_agents))
-    for i in range(num_agents):
-        for j in range(num_agents):
-            if i == j:
-                continue
-            dist = distance_formula([x[i], y[i]], [x[j], y[j]])
-            if dist <= repulsion_radius:
-                repulsion_A[i, j] = 1.
-            if dist <= repulsion_radius + orientation_radius and dist > repulsion_radius:
-                orientation_A[i, j] = 1.
-            if dist <= repulsion_radius + orientation_radius + attraction_radius and dist > repulsion_radius + orientation_radius:
-                attraction_A[i, j] = 1.
+def generate_As(x, y, rep_radius, ori_radius, att_radius):    
+    dist_x = np.subtract(x.reshape(-1, 1), x.reshape(1, -1))
+    dist_y = np.subtract(y.reshape(-1, 1), y.reshape(1, -1))
+    dist = np.linalg.norm(np.stack([dist_x, dist_y]), axis=0)
+
+    repulsion_A = np.where(np.less_equal(dist, rep_radius), 1., 0.)
+
+    orientation_A = np.where(
+                        np.logical_and(
+                            np.less_equal(dist, rep_radius + ori_radius),
+                            np.greater(dist, rep_radius) ),
+                        1.,
+                        0.)
+
+    attraction_A = np.where(
+                        np.logical_and(
+                            np.less_equal(dist, rep_radius + ori_radius + att_radius),
+                            np.greater(dist, rep_radius + ori_radius) ),
+                        1.,
+                        0.)
+
+    anti_diag = 1. - np.diag(np.ones(repulsion_A.shape[0]))
+
+    repulsion_A *= anti_diag
+    orientation_A *= anti_diag
+    attraction_A *= anti_diag
+
     return repulsion_A, orientation_A, attraction_A
 
 
@@ -46,17 +57,33 @@ def create_diagonal(num_agents, A):
 
 def generate_blind_spots(x, y, u, v, alpha, repulsion_A, orientation_A,
                          attraction_A):
+
     num_agents = len(x)
 
-    for i in range(num_agents):
-        for j in range(num_agents):
-            if i == j:
-                continue
-            if np.pi - create_theta(u[i], v[i], x[i], x[j], y[i], y[j]) < alpha / 2.:
-                repulsion_A[i, j] = 0.
-                orientation_A[i, j] = 0.
-                attraction_A[i, j] = 0.
+    x2 = x.copy().reshape(-1, 1)
+    x_diff = np.subtract(x2, x2.T)
 
+    y2 = y.copy().reshape(-1, 1)
+    y_diff = np.subtract(y2, y2.T)
+
+    xy = np.stack([x_diff, y_diff])
+    xy_norm = np.linalg.norm(xy, axis=0)
+    xy = xy / (xy_norm + .00000001)
+    xy = xy.reshape([2, -1])
+
+    uv = np.stack([u, v])
+    uv_norm = np.linalg.norm(uv, axis=0)#.reshape()
+    uv = uv / (uv_norm + .00000001)
+    uv = np.repeat(uv, num_agents, axis=1)
+
+    angles = np.arccos(np.sum(xy * uv, axis=0)).reshape([num_agents, num_agents])
+
+    blind_filter = np.where(np.less(angles, alpha / 2.), 0., 1.)
+
+    repulsion_A = repulsion_A * blind_filter
+    orientation_A = orientation_A * blind_filter
+    attraction_A = attraction_A * blind_filter
+   
     return repulsion_A, orientation_A, attraction_A
 
 

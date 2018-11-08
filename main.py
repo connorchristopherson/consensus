@@ -4,15 +4,15 @@ from plotting import *
 import cProfile
 
 # hyperparamters
-REPLUSION_RADIUS = 20
-ORIENTATION_RADIUS = 5
+REPLUSION_RADIUS = 10
+ORIENTATION_RADIUS = 2
 ATTRACTION_RADIUS = 4
 ORIENTATION_STEP_SIZE = .008
 MOVEMENT_STEP_SIZE = .0003
-STEPS = 1000
+STEPS = 500
 NUM_AGENTS = 100
 FIELD_SIZE = 70
-ALPHA = (4/4)*np.pi
+ALPHA = (6/4)*np.pi
 
 # inits
 x = np.random.randint(1, FIELD_SIZE - 1, size=NUM_AGENTS).astype(float)
@@ -43,9 +43,6 @@ plot(
     orientation_eigen,
     attraction_eigen,
     plot_radius=False)
-
-#pr = cProfile.Profile()
-#pr.enable()
 
 # loop
 for step in range(STEPS):
@@ -125,7 +122,7 @@ for step in range(STEPS):
     y = placements[:, 1]
     
     # plot
-    if step % 500 == 0:
+    if step % 11 == 0:
         plot(
             x,
             y,
@@ -141,6 +138,3 @@ for step in range(STEPS):
             attraction_eigen,
             plot_radius=False)
         
-
-#pr.disable()
-#pr.print_stats()
