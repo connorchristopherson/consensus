@@ -4,15 +4,15 @@ from plotting import *
 import cProfile
 
 # hyperparamters
-REPLUSION_RADIUS = 10
-ORIENTATION_RADIUS = 2
-ATTRACTION_RADIUS = 4
+REPLUSION_RADIUS = 3
+ORIENTATION_RADIUS = 5
+ATTRACTION_RADIUS = 5
 ORIENTATION_STEP_SIZE = .008
 MOVEMENT_STEP_SIZE = .0003
-STEPS = 500
+STEPS = 5000
 NUM_AGENTS = 100
 FIELD_SIZE = 70
-ALPHA = (6/4)*np.pi
+ALPHA = (4/4)*np.pi
 
 # inits
 x = np.random.randint(1, FIELD_SIZE - 1, size=NUM_AGENTS).astype(float)
@@ -53,20 +53,8 @@ for step in range(STEPS):
     # generate blind spots
     repulsion_A, orientation_A, attraction_A = generate_blind_spots(
         x, y, u, v, ALPHA, repulsion_A, orientation_A, attraction_A)
-    """
-    # reorient in attration region
-    for base_index in range(len(x)):
-        for neighbor_index in range(len(x)):
-            if attraction_A[base_index, neighbor_index] == 1:
-                point_orientation(
-                    x,
-                    y,
-                    u,
-                    v,
-                    base_index=base_index,
-                    neighbor_index=neighbor_index,
-                    step=ORIENTATION_STEP_SIZE)
-    """
+
+    # reorient agents
     uv = np.vstack((u, v)).T
     xy = np.vstack((x, y)).T
 

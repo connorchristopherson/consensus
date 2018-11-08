@@ -58,7 +58,7 @@ def create_diagonal(num_agents, A):
 def generate_blind_spots(x, y, u, v, alpha, repulsion_A, orientation_A,
                          attraction_A):
 
-    num_agents = len(x)
+    num_agents = x.shape[0]
 
     x2 = x.copy().reshape(-1, 1)
     x_diff = np.subtract(x2, x2.T)
@@ -68,12 +68,14 @@ def generate_blind_spots(x, y, u, v, alpha, repulsion_A, orientation_A,
 
     xy = np.stack([x_diff, y_diff])
     xy_norm = np.linalg.norm(xy, axis=0)
-    xy = xy / (xy_norm + .00000001)
+    xy = xy / xy_norm
+    xy = np.nan_to_num(xy)
     xy = xy.reshape([2, -1])
 
     uv = np.stack([u, v])
     uv_norm = np.linalg.norm(uv, axis=0)#.reshape()
-    uv = uv / (uv_norm + .00000001)
+    uv = uv / uv_norm
+    uv = np.nan_to_num(uv)
     uv = np.repeat(uv, num_agents, axis=1)
 
     angles = np.arccos(np.sum(xy * uv, axis=0)).reshape([num_agents, num_agents])
@@ -85,12 +87,3 @@ def generate_blind_spots(x, y, u, v, alpha, repulsion_A, orientation_A,
     attraction_A = attraction_A * blind_filter
    
     return repulsion_A, orientation_A, attraction_A
-
-
-def create_theta(u, v, x1, x2, y1, y2):
-    x_sub = x2 - x1
-    y_sub = y2 - y1
-    neighbor_norm = np.sqrt(x_sub**2 + y_sub**2)
-    uv_norm = np.sqrt(u**2 + v**2)
-    dot_product = np.dot(np.array([x_sub, y_sub]), np.array([u, v]))
-    return np.arccos(dot_product / (neighbor_norm * uv_norm))
