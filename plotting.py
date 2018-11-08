@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 
 
 def normalize_direction(u, v):
-    normalized_u = u / np.sqrt(u**2 + v**2) + .00000001
-    normalized_v = v / np.sqrt(u**2 + v**2) + .00000001
+    normalized_u = u / (np.sqrt(u**2 + v**2) + .00000001)
+    normalized_v = v / (np.sqrt(u**2 + v**2) + .00000001)
     return normalized_u, normalized_v
 
 
@@ -63,6 +63,6 @@ def plot(x,
          plot_radius=False):
     plot_swarm(x, y, u, v, field_size, step, repulsion_radius,
                orientation_radius, attraction_radius, plot_radius)
-    plot_eigenvalues(replusion_eigen, orientation_eigen, attraction_eigen)
+    # plot_eigenvalues(replusion_eigen, orientation_eigen, attraction_eigen)
     plt.show(block=False)
-    plt.pause(.6)
+    plt.pause(.0002)

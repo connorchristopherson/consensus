@@ -1,7 +1,6 @@
 import copy
 import numpy as np
 
-
 def point_orientation(x, y, u, v, base_index, neighbor_index, step):
     perfect_u = copy.deepcopy(u)
     perfect_v = copy.deepcopy(v)
@@ -36,16 +35,6 @@ def generate_As(x, y, repulsion_radius, orientation_radius, attraction_radius):
             if dist <= repulsion_radius + orientation_radius + attraction_radius and dist > repulsion_radius + orientation_radius:
                 attraction_A[i, j] = 1.
     return repulsion_A, orientation_A, attraction_A
-
-
-# def generate_blind_spots(x, y, u, v, blind_spot, repulsion_A, orientation_A,
-#                          attraction_A):
-#     num_agents = len(x)
-#     for i in range(num_agents):
-#         for j in range(num_agents):
-#             if i == j:
-#                 continue
-#             pass  # generate blind spots
 
 
 def create_diagonal(num_agents, A):
