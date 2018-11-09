@@ -7,12 +7,12 @@ import cProfile
 REPLUSION_RADIUS = 5
 ORIENTATION_RADIUS = 10
 ATTRACTION_RADIUS = 10
-ORIENTATION_STEP_SIZE = .08
+ORIENTATION_STEP_SIZE = .008
 MOVEMENT_STEP_SIZE = .001
 STEPS = 5000
 NUM_AGENTS = 50
 FIELD_SIZE = 70
-ALPHA = (2/4)*np.pi
+ALPHA = (6/4)*np.pi
 
 # inits
 x = np.random.randint(1, FIELD_SIZE - 1, size=NUM_AGENTS).astype(float)
@@ -106,11 +106,7 @@ for step in range(STEPS):
 
     # move
     placements = np.array(list(zip(x, y)))
-    La_filter = np.diag(np.not_equal(Lr, 0.)).reshape(-1, 1)
-    filtered_La = La * ( 1. - La_filter )
-    attraction_movement = np.matmul( filtered_La, placements )
-    repulsion_movement = np.matmul( Lr, placements )
-    x_dot = repulsion_movement - attraction_movement + noise
+    x_dot = np.matmul( Lr, placements ) - np.matmul( La, placements ) + noise
     placements += x_dot * MOVEMENT_STEP_SIZE
     x = placements[:, 0]
     y = placements[:, 1]
@@ -119,7 +115,7 @@ for step in range(STEPS):
     # ZERO OUT THE FIRST TWO ROWS OF XDOT AND IMPLEMENT RED AND GOLD LEADER MOVEMENT
 
     # plot
-    if step % 1 == 0:
+    if step % 11 == 0:
         plot(
             x,
             y,

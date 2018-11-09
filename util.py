@@ -39,6 +39,8 @@ def generate_As(x, y, rep_radius, ori_radius, att_radius):
                         1.,
                         0.)
 
+    orientation_A[orientation_A == repulsion_A]
+
     anti_diag = 1. - np.diag(np.ones(repulsion_A.shape[0]))
 
     repulsion_A *= anti_diag
@@ -80,7 +82,7 @@ def generate_blind_spots(x, y, u, v, alpha, repulsion_A, orientation_A,
 
     angles = np.arccos(np.sum(xy * uv, axis=0)).reshape([num_agents, num_agents])
 
-    blind_filter = np.where(np.less(angles, alpha / 2.), 0., 1.)
+    blind_filter = np.where(np.less(angles, alpha / 2.), 1., 0.)
 
     repulsion_A = repulsion_A * blind_filter
     orientation_A = orientation_A * blind_filter
