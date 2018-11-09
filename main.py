@@ -11,8 +11,8 @@ ORIENTATION_STEP_SIZE = .008
 MOVEMENT_STEP_SIZE = .001
 STEPS = 5000
 NUM_AGENTS = 50
-FIELD_SIZE = 70
-ALPHA = (6/4)*np.pi
+FIELD_SIZE = 150
+ALPHA = (6 / 4) * np.pi
 
 # inits
 x = np.random.randint(1, FIELD_SIZE - 1, size=NUM_AGENTS).astype(float)
@@ -42,7 +42,7 @@ plot(
     replusion_eigen,
     orientation_eigen,
     attraction_eigen,
-    plot_radius=False)
+    plot_radius=True)
 
 # loop
 for step in range(STEPS):
@@ -72,12 +72,12 @@ for step in range(STEPS):
 
     final_target = np.where(np.equal(orientation_A, attraction_A))
 
-    uv = np.where(np.all(attraction_A + orientation_A > 1., axis=1).reshape(-1, 1),
-        ((1 - ORIENTATION_STEP_SIZE ) * uv
-            + ORIENTATION_STEP_SIZE * mixed_target),
-        ((1 - ORIENTATION_STEP_SIZE ) * uv
-            + ORIENTATION_STEP_SIZE * xy_target
-            + ORIENTATION_STEP_SIZE * uv_target))
+    uv = np.where(
+        np.all(attraction_A + orientation_A > 1.,
+               axis=1).reshape(-1, 1), ((1 - ORIENTATION_STEP_SIZE) * uv +
+                                        ORIENTATION_STEP_SIZE * mixed_target),
+        ((1 - ORIENTATION_STEP_SIZE) * uv + ORIENTATION_STEP_SIZE * xy_target +
+         ORIENTATION_STEP_SIZE * uv_target))
 
     uv = uv / np.linalg.norm(uv, axis=1).reshape(-1, 1)
     u = uv[:, 0]
@@ -106,11 +106,10 @@ for step in range(STEPS):
 
     # move
     placements = np.array(list(zip(x, y)))
-    x_dot = np.matmul( Lr, placements ) - np.matmul( La, placements ) + noise
+    x_dot = np.matmul(Lr, placements) - np.matmul(La, placements) + noise
     placements += x_dot * MOVEMENT_STEP_SIZE
     x = placements[:, 0]
     y = placements[:, 1]
-    
 
     # ZERO OUT THE FIRST TWO ROWS OF XDOT AND IMPLEMENT RED AND GOLD LEADER MOVEMENT
 
@@ -129,5 +128,4 @@ for step in range(STEPS):
             replusion_eigen,
             orientation_eigen,
             attraction_eigen,
-            plot_radius=False)
-        
+            plot_radius=True)
