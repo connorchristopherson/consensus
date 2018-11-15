@@ -15,7 +15,7 @@ def plot_swarm(x, y, u, v, field_size, step, repulsion_radius,
     plt.clf()
     plt.quiver(x, y, normalized_u, normalized_v)
     plt.scatter(x, y, color='b', s=20, marker="o")
-    plt.axis([0, field_size, 0, field_size])
+    #plt.axis([0, field_size, 0, field_size])
     plt.gca().set_aspect('equal', adjustable='box')
     plt.title("Step: {}".format(step))
     if plot_radius:

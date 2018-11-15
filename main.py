@@ -4,19 +4,19 @@ from plotting import *
 import cProfile
 
 # hyperparamters
-REPLUSION_RADIUS = 5
-ORIENTATION_RADIUS = 3
-ATTRACTION_RADIUS = 100
-ORIENTATION_STEP_SIZE = .01
-MOVEMENT_STEP_SIZE = .0001
+NUM_AGENTS = 50
+REPLUSION_RADIUS = 1
+ORIENTATION_RADIUS = 0
+ATTRACTION_RADIUS = 10
+ORIENTATION_STEP_SIZE = .01  #/ NUM_AGENTS
+MOVEMENT_STEP_SIZE = .01  #/ NUM_AGENTS
 STEPS = 500000
-NUM_AGENTS = 100
-FIELD_SIZE = 150
-ALPHA = (6 / 4) * np.pi
+FIELD_SIZE = 50
+ALPHA = (5 / 4) * np.pi
 
 # inits
-x = np.random.randint(1, FIELD_SIZE - 1, size=NUM_AGENTS).astype(float)
-y = np.random.randint(1, FIELD_SIZE - 1, size=NUM_AGENTS).astype(float)
+x = np.random.randint(1, FIELD_SIZE - 1 - 10, size=NUM_AGENTS).astype(float)
+y = np.random.randint(1, FIELD_SIZE - 1 - 10, size=NUM_AGENTS).astype(float)
 u = np.random.random(NUM_AGENTS) * 2. - 1.
 v = np.random.random(NUM_AGENTS) * 2. - 1.
 uv = np.vstack((u, v)).T
@@ -55,33 +55,8 @@ for step in range(STEPS):
        x, y, u, v, ALPHA, repulsion_A, orientation_A, attraction_A)
 
     # reorient agents
-    uv = np.vstack((u, v)).T
-    xy = np.vstack((x, y)).T
-
-    xy_target = np.matmul(attraction_A, xy) - xy * \
-                np.sum(attraction_A, axis=1).reshape(-1, 1)
-    xy_target = xy_target / np.linalg.norm(xy_target, axis=1).reshape(-1, 1)
-    xy_target = np.nan_to_num(xy_target)
-
-    uv_target = np.matmul(orientation_A, uv)
-    uv_target = uv_target / np.linalg.norm(uv_target, axis=1).reshape(-1, 1)
-    uv_target = np.nan_to_num(uv_target)
-
-    mixed_target = xy_target + uv_target
-    mixed_target = np.linalg.norm(mixed_target, axis=1).reshape(-1, 1)
-
-    final_target = np.where(np.equal(orientation_A, attraction_A))
-
-    uv = np.where(
-        np.all(attraction_A + orientation_A > 1.,
-               axis=1).reshape(-1, 1), ((1 - ORIENTATION_STEP_SIZE) * uv +
-                                        ORIENTATION_STEP_SIZE * mixed_target),
-        ((1 - ORIENTATION_STEP_SIZE) * uv + ORIENTATION_STEP_SIZE * xy_target +
-         ORIENTATION_STEP_SIZE * uv_target))
-
-    uv = uv / np.linalg.norm(uv, axis=1).reshape(-1, 1)
-    u = uv[:, 0]
-    v = uv[:, 1]
+    u, v = reorient_agents(x, y, u, v, repulsion_A,
+        orientation_A, attraction_A, ORIENTATION_STEP_SIZE)
 
     # MODIFY RED AND GOLD LEADER ORIENTATION
 
@@ -95,7 +70,7 @@ for step in range(STEPS):
     Lr = repulsion_diagonal - repulsion_A
     Lo = orientation_diagonal - orientation_A
     La = attraction_diagonal - attraction_A
-    noise = (np.random.random(size=(NUM_AGENTS, 2)) - .5) * .001
+    noise = (np.random.random(size=(NUM_AGENTS, 2)) - .5) * .01
 
     # generate Fiedler eigenvalues
     replusion_eigen.append(
@@ -107,11 +82,7 @@ for step in range(STEPS):
 
     # move
     placements = np.array(list(zip(x, y)))
-    x_dot = np.matmul(Lr, placements) - np.matmul(La, placements) + noise
-    """
-    x_dot = x_dot / np.linalg.norm(x_dot, axis=1).reshape(-1, 1)
-    x_dot = np.nan_to_num(x_dot)
-    """
+    x_dot = np.array(list(zip(u, v)))
     placements += x_dot * MOVEMENT_STEP_SIZE
 
     x = placements[:, 0]
@@ -120,7 +91,7 @@ for step in range(STEPS):
     # ZERO OUT THE FIRST TWO ROWS OF XDOT AND IMPLEMENT RED AND GOLD LEADER MOVEMENT
 
     # plot
-    if step % 11 == 0:
+    if step % 21 == 0:
         plot(
             x,
             y,

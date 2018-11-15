@@ -88,3 +88,45 @@ def generate_blind_spots(x, y, u, v, alpha, repulsion_A, orientation_A,
     attraction_A = attraction_A * blind_filter
     #print(blind_filter)
     return repulsion_A, orientation_A, attraction_A
+
+def reorient_agents(x, y, u, v, repulsion_A, orientation_A,
+    attraction_A, ORIENTATION_STEP_SIZE):
+    uv = np.vstack((u, v)).T
+    xy = np.vstack((x, y)).T
+
+    xy_target = np.matmul(attraction_A, xy) - xy * \
+                np.sum(attraction_A, axis=1).reshape(-1, 1)
+    xy_target = xy_target / np.linalg.norm(xy_target, axis=1).reshape(-1, 1)
+    xy_target = np.nan_to_num(xy_target)
+
+    xy_repel = -np.matmul(repulsion_A, xy) + xy * \
+                np.sum(repulsion_A, axis=1).reshape(-1, 1)
+    xy_repel = xy_repel / np.linalg.norm(xy_repel, axis=1).reshape(-1, 1)
+    xy_repel = np.nan_to_num(xy_repel)
+
+    uv_target = np.matmul(orientation_A, uv)
+    uv_target = uv_target / np.linalg.norm(uv_target, axis=1).reshape(-1, 1)
+    uv_target = np.nan_to_num(uv_target)
+
+    mixed_target = xy_target + uv_target
+    mixed_target = mixed_target / np.linalg.norm(mixed_target, axis=1).reshape(-1, 1)
+
+    has_repulsion = np.repeat(np.any(repulsion_A == 1, axis=1), repeats=2).reshape(-1, 2)
+    has_orientation = np.repeat(np.any(orientation_A == 1, axis=1), repeats=2).reshape(-1, 2)
+    has_attraction = np.repeat(np.any(attraction_A == 1, axis=1), repeats=2).reshape(-1, 2)
+
+    final_target = np.where(has_repulsion,
+                        xy_repel,
+                        np.where(np.logical_and(has_orientation, has_attraction),
+                            mixed_target,
+                            np.where(has_attraction,
+                                xy_target,
+                                uv_target)))
+
+
+
+    uv = (1 - ORIENTATION_STEP_SIZE) * uv + ORIENTATION_STEP_SIZE * final_target
+    uv = uv / np.linalg.norm(uv, axis=1).reshape(-1, 1)
+    u = uv[:, 0]
+    v = uv[:, 1]
+    return u, v
