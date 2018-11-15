@@ -5,12 +5,12 @@ import cProfile
 
 # hyperparamters
 REPLUSION_RADIUS = 5
-ORIENTATION_RADIUS = 10
-ATTRACTION_RADIUS = 10
-ORIENTATION_STEP_SIZE = .008
-MOVEMENT_STEP_SIZE = .001
-STEPS = 5000
-NUM_AGENTS = 50
+ORIENTATION_RADIUS = 3
+ATTRACTION_RADIUS = 100
+ORIENTATION_STEP_SIZE = .01
+MOVEMENT_STEP_SIZE = .0001
+STEPS = 500000
+NUM_AGENTS = 100
 FIELD_SIZE = 150
 ALPHA = (6 / 4) * np.pi
 
@@ -52,7 +52,7 @@ for step in range(STEPS):
 
     # generate blind spots
     repulsion_A, orientation_A, attraction_A = generate_blind_spots(
-        x, y, u, v, ALPHA, repulsion_A, orientation_A, attraction_A)
+       x, y, u, v, ALPHA, repulsion_A, orientation_A, attraction_A)
 
     # reorient agents
     uv = np.vstack((u, v)).T
@@ -91,10 +91,11 @@ for step in range(STEPS):
     attraction_diagonal = create_diagonal(NUM_AGENTS, attraction_A)
 
     # generate Laplacians
+    #print(attraction_A)
     Lr = repulsion_diagonal - repulsion_A
     Lo = orientation_diagonal - orientation_A
     La = attraction_diagonal - attraction_A
-    noise = (np.random.random(size=(NUM_AGENTS, 2)) - .5) * .01
+    noise = (np.random.random(size=(NUM_AGENTS, 2)) - .5) * .001
 
     # generate Fiedler eigenvalues
     replusion_eigen.append(
@@ -107,7 +108,12 @@ for step in range(STEPS):
     # move
     placements = np.array(list(zip(x, y)))
     x_dot = np.matmul(Lr, placements) - np.matmul(La, placements) + noise
+    """
+    x_dot = x_dot / np.linalg.norm(x_dot, axis=1).reshape(-1, 1)
+    x_dot = np.nan_to_num(x_dot)
+    """
     placements += x_dot * MOVEMENT_STEP_SIZE
+
     x = placements[:, 0]
     y = placements[:, 1]
 
@@ -128,4 +134,4 @@ for step in range(STEPS):
             replusion_eigen,
             orientation_eigen,
             attraction_eigen,
-            plot_radius=True)
+            plot_radius=False)

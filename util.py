@@ -49,7 +49,7 @@ def generate_As(x, y, rep_radius, ori_radius, att_radius):
 
 def create_diagonal(num_agents, A):
     diagonal = np.eye(num_agents)
-    diagonal *= np.sum(A, axis=0)
+    diagonal *= np.sum(A, axis=1)
     return diagonal
 
 
@@ -65,13 +65,14 @@ def generate_blind_spots(x, y, u, v, alpha, repulsion_A, orientation_A,
     y_diff = np.subtract(y2, y2.T)
 
     xy = np.stack([x_diff, y_diff])
+
     xy_norm = np.linalg.norm(xy, axis=0)
     xy = xy / xy_norm
     xy = np.nan_to_num(xy)
     xy = xy.reshape([2, -1])
 
     uv = np.stack([u, v])
-    uv_norm = np.linalg.norm(uv, axis=0)  #.reshape()
+    uv_norm = np.linalg.norm(uv, axis=0)
     uv = uv / uv_norm
     uv = np.nan_to_num(uv)
     uv = np.repeat(uv, num_agents, axis=1)
@@ -79,10 +80,11 @@ def generate_blind_spots(x, y, u, v, alpha, repulsion_A, orientation_A,
     angles = np.arccos(np.sum(xy * uv,
                               axis=0)).reshape([num_agents, num_agents])
 
-    blind_filter = np.where(np.less(angles, alpha / 2.), 1., 0.)
+
+    blind_filter = np.where(np.less(np.pi - angles, alpha / 2.), 1., 0.)
 
     repulsion_A = repulsion_A * blind_filter
     orientation_A = orientation_A * blind_filter
     attraction_A = attraction_A * blind_filter
-
+    #print(blind_filter)
     return repulsion_A, orientation_A, attraction_A
