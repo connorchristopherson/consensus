@@ -26,11 +26,10 @@ def generate_As(x, y, rep_radius, ori_radius, att_radius, N_NEAREST):
     dist_y = np.subtract(y.reshape(-1, 1), y.reshape(1, -1))
     dist = np.linalg.norm(np.stack([dist_x, dist_y]), axis=0)
 
-
-    for i in range(dist.shape[0]):
-        threshold = sorted(dist[i])[N_NEAREST]
-        dist[i, np.greater(dist[i], threshold)] = np.inf
-
+    if N_NEAREST >= 0:
+        for i in range(dist.shape[0]):
+            threshold = sorted(dist[i])[N_NEAREST]
+            dist[i, np.greater(dist[i], threshold)] = np.inf
 
     diagonal_mask = np.eye(len(x)) == 1
 
