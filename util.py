@@ -18,11 +18,19 @@ def point_orientation(x, y, u, v, base_index, neighbor_index, step):
 def distance_formula(point1, point2):
     return np.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
+def remove_one_minus_n_furthest(dist, N_NEAREST):
+    pass
 
-def generate_As(x, y, rep_radius, ori_radius, att_radius):
+def generate_As(x, y, rep_radius, ori_radius, att_radius, N_NEAREST):
     dist_x = np.subtract(x.reshape(-1, 1), x.reshape(1, -1))
     dist_y = np.subtract(y.reshape(-1, 1), y.reshape(1, -1))
     dist = np.linalg.norm(np.stack([dist_x, dist_y]), axis=0)
+
+
+    for i in range(dist.shape[0]):
+        threshold = sorted(dist[i])[N_NEAREST]
+        dist[i, np.greater(dist[i], threshold)] = np.inf
+
 
     diagonal_mask = np.eye(len(x)) == 1
 
@@ -86,7 +94,7 @@ def generate_blind_spots(x, y, u, v, alpha, repulsion_A, orientation_A,
     repulsion_A = repulsion_A * blind_filter
     orientation_A = orientation_A * blind_filter
     attraction_A = attraction_A * blind_filter
-    #print(blind_filter)
+
     return repulsion_A, orientation_A, attraction_A
 
 def reorient_agents(x, y, u, v, repulsion_A, orientation_A,
